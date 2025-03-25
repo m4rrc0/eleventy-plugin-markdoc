@@ -8,7 +8,12 @@
   "scripts": {
     "start": "eleventy --serve",
     "build": "eleventy",
-    "bump": "npm --no-git-tag-version version"
+    "clean": "rm -rf _site",
+    "bump": "npm --no-git-tag-version version",
+    "patch": "npm version patch",
+    "preversion": "npm run build",
+    "version": "git add -A",
+    "postversion": "git push && git push --tags && npm run clean"
   },
   "repository": {
     "type": "git",
