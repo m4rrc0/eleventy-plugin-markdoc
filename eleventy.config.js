@@ -14,7 +14,9 @@ export default function(eleventyConfig, pluginOptions) {
     // Defaults plugin config
     const defaults = {
         html: true,
-        documentRenderTag: null
+        allowComments: true,
+        documentRenderTag: null,
+        extensions: ["mdoc", "markdoc"]
     };
     // Plugin options
     const po = {
@@ -31,7 +33,7 @@ export default function(eleventyConfig, pluginOptions) {
     const pairedShortcodes = eleventyConfig.getPairedShortcodes();
 
     // "mdoc" here means that the extension will apply to any .mdoc file
-	eleventyConfig.addExtension(["mdoc", "markdoc", "markdoc.md"], {
+	eleventyConfig.addExtension(po.extensions, {
 		compile: async function(inputContent, inputPath) {
             if (typeof inputContent === "undefined") {
                 // Can happen if `read: false` is set
@@ -61,7 +63,12 @@ export default function(eleventyConfig, pluginOptions) {
                 const tokenizer = new Markdoc.Tokenizer({ html: true });
                 const tokens = tokenizer.tokenize(inputContent);
                 processed = processTokens(tokens);
+            } else {
+                const tokenizer = new Markdoc.Tokenizer({ allowComments: true });
+                const tokens = tokenizer.tokenize(inputContent);
+                processed = processTokens(tokens);
             }
+            
             const ast = Markdoc.parse(processed);
             
             // TODO: Register dependencies
@@ -101,6 +108,9 @@ export default function(eleventyConfig, pluginOptions) {
 	});
 }
 
-// NOTES
+// TODO:
 // - ? Handle code blocks as pre > code ?
 // - ? Paired shortcodes ?
+// - ? Async filters and shortcodes ?
+// - Support `.markdoc.md` extension
+// - Explore combining this with WebC
