@@ -1,3 +1,22 @@
-index.md
+# Development files
+index.mdoc
 _includes
 _site
+
+# Build artifacts
+node_modules/
+
+# Version control
+.git/
+.github/
+.gitignore
+
+# Editor files
+.vscode/
+.idea/
+*.sublime-*
+
+# Logs
+logs
+*.log
+npm-debug.log*

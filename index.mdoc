@@ -1,5 +1,6 @@
 ---
 layout: base.njk
+title: Markdoc Example
 ---
 
 ## Plugin Test Page
@@ -32,3 +33,45 @@ Sugar plum jelly sesame snaps I love powder. Chocolate sesame snaps cake. Pastry
 Chocolate bar pudding ice cream. Jelly-o tootsie roll pie gingerbread candy jelly beans cupcake donut lollipop. Croissant topping cake apple pie gummi bears gingerbread donut croissant tiramisu. Gummies chupa chups donut caramels gummies cotton candy cookie muffin pudding. Chocolate cake dessert bonbon I love. Marzipan jujubes jelly beans. I love wafer cookie carrot cake caramels sesame snaps cotton candy marshmallow.
 
 Gummies toffee I love danish I love macaroon sesame snaps cookie. Macaroon lollipop apple pie powder marzipan bonbon brownie sweet roll I love. Gummi bears ice cream pie oat cake cupcake wafer sesame snaps. Sweet brownie icing. Tart sweet sugar plum danish cupcake I love. Fruitcake tart sweet roll soufflé. Muffin ice cream I love I love sugar plum jujubes carrot cake wafer I love. Icing brownie cake I love sugar plum I love cake.
+
+
+# Markdoc Example
+
+This is a sample Markdoc file to demonstrate the plugin functionality.
+
+## Basic Markdown Features
+
+- **Bold text** and *italic text*
+- [Links](https://markdoc.dev)
+- `Inline code`
+
+```js
+// Code blocks
+const hello = 'world';
+console.log(hello);
+```
+
+## Markdoc Features
+
+{% callout type="note" %}
+This is a callout component using Markdoc tags.
+{% /callout %}
+
+{% callout type="warning" %}
+Markdoc extends Markdown with a tag syntax for components.
+{% /callout %}
+
+## Variables
+
+Accessing variables: {% $title %}
+
+## Custom Rendering
+
+You can create custom tags, nodes, and functions to extend Markdoc's capabilities.
+
+<h2>Render HTML</h2>
+
+<img src="https://placehold.co/600x400" alt="A placeholder image">
+
+## Use universal filters and shortcodes (not paired shortcodes)
+

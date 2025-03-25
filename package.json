@@ -1,9 +1,9 @@
 {
-  "name": "@scope/plugin-name",
-  "version": "1.0.0",
-  "description": "Description of plugin",
+  "name": "@m4rrc0/eleventy-plugin-markdoc",
+  "version": "0.1.0",
+  "description": "An Eleventy plugin to add support for Markdoc as template language",
   "type": "module",
-  "homepage": "",
+  "homepage": "https://github.com/m4rrc0/eleventy-plugin-markdoc",
   "main": "eleventy.config.js",
   "scripts": {
     "start": "eleventy --serve",
@@ -12,23 +12,28 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/username/repo-name.git"
+    "url": "git+https://github.com/m4rrc0/eleventy-plugin-markdoc.git"
   },
   "keywords": [
     "11ty",
     "11ty-plugin",
     "eleventy",
-    "eleventy-plugin"
+    "eleventy-plugin",
+    "markdoc"
   ],
   "author": {
-    "name": "username",
-    "url": "https://website.com"
+    "name": "m4rrc0",
+    "url": "https://github.com/m4rrc0"
   },
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/username/repo-name/issues"
+    "url": "https://github.com/m4rrc0/eleventy-plugin-markdoc/issues"
   },
   "devDependencies": {
+    "@11ty/eleventy": "^3.0.0",
+    "@markdoc/markdoc": "^0.5.1"
+  },
+  "peerDependencies": {
     "@11ty/eleventy": "^3.0.0"
   }
 }
