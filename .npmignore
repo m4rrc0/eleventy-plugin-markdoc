@@ -2,6 +2,7 @@
 index.mdoc
 _includes
 _site
+.eleventyignore
 
 # Build artifacts
 node_modules/
