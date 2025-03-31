@@ -75,7 +75,7 @@ The plugin accepts the following configuration options:
 | `allowComments` | Boolean | `true` | Whether to allow HTML comments in Markdoc files |
 | `documentRenderTag` | String\|null | `null` | Custom tag to render the document node |
 | `transform` | Object | `{}` | Custom [Markdoc transform configuration](https://markdoc.dev/docs/config) |
-| `extensions` | Array\|String | `["mdoc", "markdoc"]` | Custom extensions to process |
+| `extensions` | Array | `["mdoc", "markdoc"]` | Custom extensions to process |
 
 ### Configuration Example
 
@@ -143,7 +143,7 @@ When using the tag syntax, the arguments must be passed as an array.
 If you pass something else as first unnamed argument (string, object, ...), it will be passed as the first argument to your shortcode function.  
 If you need to pass an array as the first argument, do `{% shortcode [["array", "argument"]] %}` (or use the function notation).
 
-⚠️ **Note**: Paired shortcodes are not supported yet.
+⚠️ **Note**: Paired shortcodes are in test phase. Please report any issues you may encounter.  
 ⚠️ **Note**: Async shortcodes are not supported yet.
 
 ### Data Cascade

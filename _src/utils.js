@@ -1,4 +1,6 @@
 import Markdoc from "@markdoc/markdoc";
+import { tags as htmlTags, processTokens } from './html-in-mdoc.js';
+
 
 export function convertUniversalFiltersToFunctions(filters, pluginOptions) {
     let functions = {};
@@ -65,6 +67,8 @@ export function convertShortcodesToTags(shortcodes, pluginOptions) {
                 // We consider this as the list of attributes to pass to the universal shortcode function
                 // ⚠️ If user wants to pass an array as the first attributes, she will need to to write {% tag ["val1", "val2]] %}
                 
+                // Option B. is implemented right now.
+                // The `primary` attribute should be an array containing all the attributes expected by the shortcode
                 return Array.isArray(primary) ? fn(...primary) : fn(primary);
             }
         };
@@ -78,9 +82,6 @@ export function convertPairedShortcodesToTags(pairedShortcodes, pluginOptions) {
     // Register paired shortcodes as tags
     for (const [name, fn] of Object.entries(pairedShortcodes)) {
         tags[name] = {
-            // render: "div",
-            // children: ['paragraph', 'tag', 'list'],
-            // selfClosing: true,
             attributes: {
                 primary: {
                     type: Array,
@@ -88,31 +89,21 @@ export function convertPairedShortcodesToTags(pairedShortcodes, pluginOptions) {
             },
             transform(node, config) {
                 const attributes = node.transformAttributes(config);
-                const children = node.transformChildren(config);
-                // const newNode = node.transform(config);
-
                 const { primary, ...attr1AsObject } = attributes;
+                const children = node.transformChildren(config);
+                // Convert the inside of the paired shortcode to html
+                const innerHtml = Markdoc.renderers.html(children);
+                // Call the shortcode function to generate html
+                // The `primary` attribute should be an array containing all the attributes expected by the shortcode
+                const html = Array.isArray(primary) ? fn(innerHtml, ...primary) : fn(innerHtml, primary);
+                // Generate a renderable tree from the html
+                const tokenizer = new Markdoc.Tokenizer({ html: true });
+                const tokens = tokenizer.tokenize(html);
+                const processed = processTokens(tokens);
+                const ast = Markdoc.parse(processed);
+                const renderableTree = Markdoc.transform(ast, config);
 
-                // TODO: Find a way to automatically convert paired shortcodes
-
-                // const innerContent = Markdoc.parse(children)
-                // const innerHtml = Markdoc.renderers.html(children)
-                // console.log({ child: children[0], innerHtml })
-                // return Array.isArray(primary) ? fn(innerHtml, ...primary) : fn(innerHtml, primary);
-
-                // const innerContent = children.map(child => {
-                //     // return new Markdoc.Tag(child.name, child.attributes, child.children)
-                //     const html = Markdoc.renderers.html(child);
-                //     return html
-                // })
-                // console.log({ node, children, innerContent })
-                // return Array.isArray(primary) ? fn(innerContent, ...primary) : fn(innerContent, primary);
-                
-                // return Array.isArray(primary) ? fn(children, ...primary) : fn(children, primary);
-                // return '<p>Hey there</p>'
-                // return new Markdoc.Tag(name, attrs, children);
-                
-                return null
+                return renderableTree;
             }
         };
     }
