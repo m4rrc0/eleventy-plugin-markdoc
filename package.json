@@ -1,6 +1,6 @@
 {
   "name": "@m4rrc0/eleventy-plugin-markdoc",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "An Eleventy plugin to add support for Markdoc as template language",
   "type": "module",
   "homepage": "https://github.com/m4rrc0/eleventy-plugin-markdoc",
