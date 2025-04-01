@@ -45,31 +45,29 @@ export function convertShortcodesToTags(shortcodes, pluginOptions) {
                     type: Array,
                 }
             },
-            transform({ attributes }) {
-                const { primary, ...attr1AsObject } = attributes;
+            transform(node, config) {
+                const { primary } = node.transformAttributes(config);
+                const { ...otherAttrs } = node.attributes
+                // NOTE: Concerns: We cannot validate these attributes
 
-                // TODO: Decide if we should implement A
-                // A. Less predictable but more user-friendly solution
-                // 3 possible cases:
-                // 1. primary is an array / {% user ["Theo", "van der Wege"] %}
-                // We consider this as the list of attributes to pass to the universal shortcode function
-                // ⚠️ If user wants to pass an array as the first attributes, she will need to to write {% tag [["val1", "val2]] %}
-                // 2. primary is not an array / {% user "Theo" %}
-                // We consider the value as being the first and only attribute
-                // 3. primary is undefined / {% user firstName="Theo" lastName="van der Wege" %}
-                // We consider all other attributes as being key-value pairs of an object passed as first attribute of the universal shortcode function
-                // Concerns:
-                // - We cannot validate anything
-                // - What if both primary and more attributes are defined?
-                                            
-                // B. More predictable but less user-friendly solution
-                // primary must be an array or undefined
-                // We consider this as the list of attributes to pass to the universal shortcode function
-                // ⚠️ If user wants to pass an array as the first attributes, she will need to to write {% tag ["val1", "val2]] %}
-                
-                // Option B. is implemented right now.
-                // The `primary` attribute should be an array containing all the attributes expected by the shortcode
-                return Array.isArray(primary) ? fn(...primary) : fn(primary);
+                let html = '';
+                // 2 possible cases for handling attributes:
+                if (!otherAttrs) {
+                    // 1. No named attributes
+                    // The `primary` attribute should be an array containing all the attributes expected by the shortcode
+                    // E.g. {% user ["Theo", "van der Wege"] %}
+                    // We also support a string value for the `primary` attribute which is then passed as first argument to the shortcode function
+                    // E.g. {% user "Theo" %}
+                    // ⚠️ If user wants to pass an array as the first attributes, she will need to to write {% tag ["val1", "val2]] %}
+                    html = Array.isArray(primary) ? fn(...primary) : fn(primary);
+                } else {
+                    // 2. Other named attributes
+                    // We consider all other attributes as being key-value pairs of an object passed as first attribute of the shortcode function
+                    // E.g. {% user firstName="Theo" lastName="van der Wege" %}
+                    html = Array.isArray(primary) ? fn(otherAttrs, ...primary) : fn(otherAttrs, primary);
+                }
+
+                return html;
             }
         };
     }
@@ -88,14 +86,23 @@ export function convertPairedShortcodesToTags(pairedShortcodes, pluginOptions) {
                 }
             },
             transform(node, config) {
-                const attributes = node.transformAttributes(config);
-                const { primary, ...attr1AsObject } = attributes;
+                const { primary } = node.transformAttributes(config);
+                const { ...otherAttrs } = node.attributes
                 const children = node.transformChildren(config);
+
                 // Convert the inside of the paired shortcode to html
                 const innerHtml = Markdoc.renderers.html(children);
+
                 // Call the shortcode function to generate html
-                // The `primary` attribute should be an array containing all the attributes expected by the shortcode
-                const html = Array.isArray(primary) ? fn(innerHtml, ...primary) : fn(innerHtml, primary);
+                let html = '';
+                if (!otherAttrs) {
+                    // NOTE: see notes in convertShortcodesToTags
+                    html = Array.isArray(primary) ? fn(innerHtml, ...primary) : fn(innerHtml, primary);
+                } else {
+                    // NOTE: see notes in convertShortcodesToTags
+                    html = Array.isArray(primary) ? fn(innerHtml, otherAttrs, ...primary) : fn(innerHtml, otherAttrs, primary);
+                }
+
                 // Generate a renderable tree from the html
                 const tokenizer = new Markdoc.Tokenizer({ html: true });
                 const tokens = tokenizer.tokenize(html);

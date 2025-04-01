@@ -137,14 +137,63 @@ Eleventy shortcodes are available as both Markdoc functions and tags:
 
 <!-- As tag: pass an array as unnamed first argument -->
 {% user [$firstName, $lastName] %}
+
+<!-- As tag: pass a string value as unnamed first argument -->
+{% user $firstName %}
+
+<!-- As tag: pass named attributes -->
+{% user firstName=$firstName lastName=$lastName %}
+
 ```
 
-When using the tag syntax, the arguments must be passed as an array.  
-If you pass something else as first unnamed argument (string, object, ...), it will be passed as the first argument to your shortcode function.  
-If you need to pass an array as the first argument, do `{% shortcode [["array", "argument"]] %}` (or use the function notation).
+When using the tag syntax, you have multiple ways of passing arguments to your shortcode function:
+
+1. **No unnamed attribute(s)**
+
+```markdoc
+{% user [$firstName, $lastName] %}
+```
+
+The list of arguments will be passed to the shortcode function as `fn(firstName, lastName)`
+
+Optionally, you can pass a string value as the first argument:
+
+```markdoc
+{% user $firstName %}
+```
+
+This will be passed as `fn(firstName)`
+
+2. **Named attributes**
+
+```markdoc
+{% user firstName=$firstName lastName=$lastName %}
+```
+
+If some named attributes are passed, they will be passed as an object as the first argument to the shortcode function:
+
+```js
+fn({ firstName, lastName })
+```
+
+ℹ️ **Note**: If you need to pass an array as the first argument, do `{% shortcode [["array", "argument"]] %}` (or use the function notation).
 
 ⚠️ **Note**: Paired shortcodes are in test phase. Please report any issues you may encounter.  
 ⚠️ **Note**: Async shortcodes are not supported yet.
+
+#### Paired Shortcodes
+
+Paired shortcodes are always converted to Markdoc tags, following the same convention as simple shortcodes but the content is always passed as the first argument as a markdoc-processed HTML string.
+
+So a full example would be:
+
+```markdoc
+{% user [$firstName, $lastName] role=$role %}
+  <p>Content</p>
+{% /user %}
+```
+
+This will be passed to the shortcode function as `fn("<p>Content</p>", { role }, firstName, lastName)`.
 
 ### Data Cascade
 
