@@ -16,7 +16,8 @@ export default function(eleventyConfig, pluginOptions) {
         html: true,
         allowComments: true,
         documentRenderTag: null,
-        extensions: ["mdoc", "markdoc"]
+        extensions: ["mdoc", "markdoc"],
+        deferTags: []
     };
     // Plugin options
     const po = {
@@ -70,6 +71,14 @@ export default function(eleventyConfig, pluginOptions) {
             }
             
             const ast = Markdoc.parse(processed);
+
+            // TODO: find a better solution for this
+            // To be able to defer children rendering
+            for (const node of ast.walk()) {
+                if (po.deferTags.includes(node.tag)) {
+                    node.rawChildren = [...node.children];     // save original ast
+                }
+            }
             
             // TODO: Register dependencies
             // https://www.11ty.dev/docs/languages/custom/#registering-dependencies
