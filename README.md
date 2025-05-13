@@ -9,8 +9,8 @@ This plugin allows you to use [Markdoc](https://markdoc.dev/) in your Eleventy p
 - Use `.mdoc` or `.markdoc` files in your Eleventy project
 - Write content using Markdoc's extended Markdown syntax
 - Access Eleventy's data cascade within your Markdoc files
-- Use Eleventy's universal filters and shortcodes directly in your Markdoc content (⚠️ Paired shortcodes are not supported yet)
-- Preserve HTML within Markdoc files (enabled by default)
+- Use Eleventy's universal filters and shortcodes directly in your Markdoc content (⚠️ We haven't figured Async stuff out yet)
+- Preserve HTML within Markdoc files (enabled by default, can be disabled)
 - Customize rendering with your own tags, nodes, and functions
 
 ## Installation
@@ -23,7 +23,7 @@ npm install @m4rrc0/eleventy-plugin-markdoc
 
 ### Basic Setup
 
-Add the plugin to your [Eleventy configuration file](https://www.11ty.io/docs/config/) (`eleventy.config.js` or `.eleventy.js`):
+Add the plugin to your [Eleventy configuration file](https://www.11ty.io/docs/config/) (probably `eleventy.config.js` or `.eleventy.js`):
 
 ```js
 import markdocPlugin from '@m4rrc0/eleventy-plugin-markdoc';
@@ -76,6 +76,8 @@ The plugin accepts the following configuration options:
 | `documentRenderTag` | String\|null | `null` | Custom tag to render the document node |
 | `transform` | Object | `{}` | Custom [Markdoc transform configuration](https://markdoc.dev/docs/config) |
 | `extensions` | Array | `["mdoc", "markdoc"]` | Custom extensions to process |
+| `includeTags.htmlTagProxy` | Boolean\|String | `"html-tag"` | Whether to include the HTML tag proxy, with an option to set a custom tag name |
+| `includeTags.htmlElements` | Boolean | `false` | Whether to include all HTML elements as Markdoc tags |
 
 ### Configuration Example
 
@@ -84,10 +86,16 @@ import markdocPlugin from '@m4rrc0/eleventy-plugin-markdoc';
 
 export default function(eleventyConfig) {
   eleventyConfig.addPlugin(markdocPlugin, {
-    html: true,
-    allowComments: true,
-    documentRenderTag: 'article',
-    extensions: ["mdoc", "markdoc"],
+    html: true, // Default: true
+    allowComments: true, // Default: true
+    documentRenderTag: 'article', // Default: null
+    extensions: ["mdoc", "markdoc"], // Default: ["mdoc", "markdoc"]
+    deferTags: ["for-loop"], // Default: []
+    includeTags: {
+        htmlTagProxy: "html-tag", // Default: "html-tag"
+        htmlElements: true // Default: false
+    },
+    // Default: No default value for transform
     transform: {
       nodes: {
         // Custom node definitions
@@ -117,6 +125,61 @@ export default function(eleventyConfig) {
 
 This plugin automatically integrates Eleventy's features with Markdoc:
 
+
+### Data Cascade
+
+All data from Eleventy's data cascade is available as variables in your Markdoc files:
+
+```markdoc
+# {% $title %}
+
+Author: {% $author.name %}
+11ty version; {% $eleventy.version %}
+```
+
+## HTML Support
+
+By default, the plugin preserves HTML in your Markdoc files:
+
+```markdoc
+# My Title
+
+<div class="custom-component">
+  <p>This HTML will be preserved</p>
+</div>
+```
+
+You can disable this feature by setting `html: false` in the plugin options.
+
+### ⚠️ Warning about mixing HTML and Markdoc syntax
+
+There are some funky stuff going on when mixing HTML and Markdoc syntax.
+
+For example, this won't work:
+
+```html
+<strong>
+  *Markdoc*
+</strong>
+
+<div>
+  ![Image](https://placehold.co/600x400)
+</div>
+```
+
+While this will work (more or less) as expected:
+
+```markdoc
+<strong>*Markdoc*</strong>
+
+<div>
+
+  ![Image](https://placehold.co/600x400)
+
+</div>
+```
+
+
 ### Filters
 
 All Eleventy universal filters are available as Markdoc functions:
@@ -125,7 +188,7 @@ All Eleventy universal filters are available as Markdoc functions:
 {% slugify($myString) %}
 ```
 
-⚠️ **Note**: Async filters are not supported yet.
+⚠️ **Note**: Async filters are not supported (yet?).
 
 ### Shortcodes
 
@@ -179,7 +242,7 @@ fn({ firstName, lastName })
 ℹ️ **Note**: If you need to pass an array as the first argument, do `{% shortcode [["array", "argument"]] %}` (or use the function notation).
 
 ⚠️ **Note**: Paired shortcodes are in test phase. Please report any issues you may encounter.  
-⚠️ **Note**: Async shortcodes are not supported yet.
+⚠️ **Note**: Async shortcodes are not supported (yet?).
 
 #### Paired Shortcodes
 
@@ -195,31 +258,6 @@ So a full example would be:
 
 This will be passed to the shortcode function as `fn("<p>Content</p>", { role }, firstName, lastName)`.
 
-### Data Cascade
-
-All data from Eleventy's data cascade is available as variables in your Markdoc files:
-
-```markdoc
-# {% $title %}
-
-Author: {% $author.name %}
-11ty version; {% $eleventy.version %}
-```
-
-## HTML Support
-
-By default, the plugin preserves HTML in your Markdoc files:
-
-```markdoc
-# My Title
-
-<div class="custom-component">
-  <p>This HTML will be preserved</p>
-</div>
-```
-
-You can disable this feature by setting `html: false` in the plugin options.
-
 ## Requirements
 
 - Eleventy 3.0.0 or higher
@@ -228,7 +266,24 @@ You can disable this feature by setting `html: false` in the plugin options.
 
 - [Markdoc](https://markdoc.dev/) - The underlying Markdoc library
 - HTML preservation technique based on [this solution](https://github.com/markdoc/markdoc/issues/10#issuecomment-1492560830)
+- [Eleventy](https://www.11ty.io/) (of course!) - The awesome SSG we all love ❤️
 
 ## License
 
 ISC
+
+## TODO List
+
+### Documentation
+
+- [ ] `deferTags`
+- [ ] `includeTags.htmlTagProxy`
+- [ ] `includeTags.htmlElements`
+- [ ] `{% html-tag %}`
+- [ ] `{% htmlElement %}`
+
+### Features
+
+- [ ] Figure out what is going on when mixing HTML and Markdoc syntax => Seems related to how inline Vs block elements are handled
+
+

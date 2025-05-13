@@ -73,5 +73,66 @@ You can create custom tags, nodes, and functions to extend Markdoc's capabilitie
 
 <img src="https://placehold.co/600x400" alt="A placeholder image">
 
-## Use universal filters and shortcodes (not paired shortcodes)
+### Mixing HTML and Markdoc
+
+All of this will work:
+
+```html
+<strong>*Markdoc*</strong>
+
+<div>
+
+  ![Image](https://placehold.co/600x400)
+
+</div>
+```
+
+**Test:**
+
+---
+
+<strong>*Markdoc*</strong>
+
+<div>
+
+  ![Image](https://placehold.co/600x400)
+
+</div>
+
+---
+
+All of this will **NOT** work:
+
+```html
+<strong>
+  *Markdoc*
+</strong>
+
+<div>
+  ![Image](https://placehold.co/600x400)
+</div>
+```
+
+**Test:**
+
+---
+
+<strong>
+  *Markdoc*
+</strong>
+
+<div>
+  ![Image](https://placehold.co/600x400)
+</div>
+
+---
+
+### Special Markdoc Tags
+
+```
+{% a href="https://markdoc.dev" data-test="test" %}Markdoc{% /a %}
+```
+
+{% a href="https://markdoc.dev" data-test="test" %}Markdoc{% /a %}
+
 

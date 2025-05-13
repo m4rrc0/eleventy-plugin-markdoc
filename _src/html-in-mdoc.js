@@ -6,22 +6,23 @@
 
 import Markdoc from "@markdoc/markdoc";
 import { Parser } from "htmlparser2";
+import assert from "node:assert";
 
-export const tags = {
-    "html-tag": {
-      attributes: {
-        name: { type: String, required: true },
-        attrs: { type: Object },
-      },
-      transform(node, config) {
-        const { name, attrs } = node.attributes;
-        const children = node.transformChildren(config);
-        return new Markdoc.Tag(name, attrs, children);
-      },
-    },
+export const htmlTagProxy = {
+  attributes: {
+    name: { type: String, required: true },
+    attrs: { type: Object },
+  },
+  transform(node, config) {
+    const { name, attrs } = node.attributes;
+    const children = node.transformChildren(config);
+    return new Markdoc.Tag(name, attrs, children);
+  },
 }
 
-export function processTokens(tokens) {
+export function processTokens(tokens, htmlTagProxyName = "html-tag") {
+  assert(typeof htmlTagProxyName === "string", "htmlTagProxyName (2nd argument) must be a string");
+  
   const output = [];
 
   const parser = new Parser({
@@ -30,7 +31,7 @@ export function processTokens(tokens) {
         type: "tag_open",
         nesting: 1,
         meta: {
-          tag: "html-tag",
+          tag: htmlTagProxyName,
           attributes: [
             { type: "attribute", name: "name", value: name },
             { type: "attribute", name: "attrs", value: attrs },
@@ -48,7 +49,7 @@ export function processTokens(tokens) {
       output.push({
         type: "tag_close",
         nesting: -1,
-        meta: { tag: "html-tag" },
+        meta: { tag: htmlTagProxyName },
       });
     },
   });

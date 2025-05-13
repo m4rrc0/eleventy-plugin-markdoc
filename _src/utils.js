@@ -1,6 +1,5 @@
 import Markdoc from "@markdoc/markdoc";
-import { tags as htmlTags, processTokens } from './html-in-mdoc.js';
-
+import { processTokens } from './html-in-mdoc.js';
 
 export function convertUniversalFiltersToFunctions(filters, pluginOptions) {
     let functions = {};

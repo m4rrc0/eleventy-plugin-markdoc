@@ -5,7 +5,8 @@ import {
     convertShortcodesToTags,
     convertPairedShortcodesToTags
 } from './_src/utils.js';
-import { tags as htmlTags, processTokens } from './_src/html-in-mdoc.js';
+import { htmlTagProxy, processTokens } from './_src/html-in-mdoc.js';
+import * as htmlElements from './_src/tags/html-elements/index.js';
 
 // TODO: validate pluginOptions (with zod?)
 export default function(eleventyConfig, pluginOptions) {
@@ -17,13 +18,20 @@ export default function(eleventyConfig, pluginOptions) {
         allowComments: true,
         documentRenderTag: null,
         extensions: ["mdoc", "markdoc"],
-        deferTags: []
+        deferTags: [],
+        includeTags: {
+            htmlTagProxy: "html-tag",
+            htmlElements: false
+        }
     };
     // Plugin options
     const po = {
         ...defaults,
         ...pluginOptions,
     }
+
+    let htpn = po.includeTags?.htmlTagProxy
+    htpn = (typeof htpn === "string" && htpn) || (htpn === true && "html-tag") || htpn;
 
     // Add as a valid extension to process
 	// Alternatively, add this to the list of formats you pass to the `--formats` CLI argument
@@ -56,6 +64,7 @@ export default function(eleventyConfig, pluginOptions) {
             let tags = {
                 ...convertShortcodesToTags(shortcodes, po),
                 ...convertPairedShortcodesToTags(pairedShortcodes, po),
+                ...(po.includeTags?.htmlElements ? htmlElements : {})
             }
 
             let processed = inputContent
@@ -63,11 +72,11 @@ export default function(eleventyConfig, pluginOptions) {
                 // Tokenize and process the input if we need to keep HTML
                 const tokenizer = new Markdoc.Tokenizer({ html: true });
                 const tokens = tokenizer.tokenize(inputContent);
-                processed = processTokens(tokens);
+                processed = processTokens(tokens, htpn);
             } else {
                 const tokenizer = new Markdoc.Tokenizer({ allowComments: true });
                 const tokens = tokenizer.tokenize(inputContent);
-                processed = processTokens(tokens);
+                processed = processTokens(tokens, htpn);
             }
             
             const ast = Markdoc.parse(processed);
@@ -102,7 +111,8 @@ export default function(eleventyConfig, pluginOptions) {
                         ...po.transform?.functions
                     },
                     tags: {
-                        ...(po.html ? htmlTags : {}),
+                        // Enforce the html tag proxy if html is enabled
+                        ...(po.html ? { [htpn || "html-tag"]: htmlTagProxy } : {}),
                         ...tags,
                         ...po.transform?.tags
                     },
