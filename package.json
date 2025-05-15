@@ -37,7 +37,8 @@
   },
   "devDependencies": {
     "@11ty/eleventy": "^3.0.0",
-    "@markdoc/markdoc": "^0.5.1"
+    "@markdoc/markdoc": "^0.5.1",
+    "fast-glob": "^3.3.3"
   },
   "peerDependencies": {
     "@11ty/eleventy": "^3.0.0"

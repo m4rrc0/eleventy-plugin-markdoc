@@ -4,6 +4,12 @@
 
 This plugin allows you to use [Markdoc](https://markdoc.dev/) in your Eleventy projects. Markdoc extends Markdown with a powerful component system and custom tags, making it ideal for documentation sites and content-heavy applications.
 
+This plugin is in active development. You will probably find some bugs nesting here and there. Please bring them [home](https://github.com/m4rrc0/eleventy-plugin-markdoc/issues).
+
+## Built for poko (Self-promotion)
+
+This plugin is one of the cornerstones of [poko: Capsule Website](https://github.com/m4rrc0/poko-capsule-website), an open-source, low maintenance website builder to propel your corner of the web for free (or very cheap) in full autonomy with very approachable technologies and services.
+
 ## Features
 
 - Use `.mdoc` or `.markdoc` files in your Eleventy project
@@ -76,8 +82,27 @@ The plugin accepts the following configuration options:
 | `documentRenderTag` | String\|null | `null` | Custom tag to render the document node |
 | `transform` | Object | `{}` | Custom [Markdoc transform configuration](https://markdoc.dev/docs/config) |
 | `extensions` | Array | `["mdoc", "markdoc"]` | Custom extensions to process |
-| `includeTags.htmlTagProxy` | Boolean\|String | `"html-tag"` | Whether to include the HTML tag proxy, with an option to set a custom tag name |
-| `includeTags.htmlElements` | Boolean | `false` | Whether to include all HTML elements as Markdoc tags |
+| `includeTags` | Object | `{}` | Custom Markdoc [include tags configuration](#include-tags-configuration) |
+| `usePartials` | Array | `[]` | Array of [partial source configurations](#partial-source-configuration) objects |
+
+### Include Tags Configuration
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `htmlTagProxy` | Boolean\|String | `"html-tag"` | Whether to include the HTML tag proxy, with an option to set a custom Markdoc tag name |
+| `htmlElements` | Boolean | `false` | Whether to include all HTML elements as Markdoc tags |
+
+### Partial Source Configuration
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `cwd` | String | 11ty inputDir | Working directory for glob patterns |
+| `patterns` | Array | `["**/*.{<options.extensions>}"]` | Glob patterns to match files in `cwd` |
+| `encoding` | String | `"utf8"` | File reading options |
+| `pathPrefix` | String | `""` | Add a prefix to all paths in the results |
+| `stripPrefix` | String | `""` | Remove a prefix from all paths in the results |
+| `debug` | Boolean | `false` | Debug mode |
+| ... | ... | ... | ... other options are directly passed to [fast-glob](https://github.com/mrmlnc/fast-glob?tab=readme-ov-file#options-3) |
 
 ### Configuration Example
 
@@ -95,6 +120,18 @@ export default function(eleventyConfig) {
         htmlTagProxy: "html-tag", // Default: "html-tag"
         htmlElements: true // Default: false
     },
+    // Array of partial source configurations
+    usePartials: [
+        {
+            cwd: path.join(inputDir, includesDir), // Default: path.join(inputDir, includesDir)
+            patterns: [`**/*.{mdoc,md,html}`], // Default: [`**/*.{<extensions>}`]
+            encoding: "utf8", // Default: "utf8"
+            pathPrefix: "", // Default: ""
+            stripPrefix: "", // Default: ""
+            debug: true // Default: false
+            // ... other options are directly passed to fast-glob
+        }
+    ],
     // Default: No default value for transform
     transform: {
       nodes: {
@@ -125,7 +162,6 @@ export default function(eleventyConfig) {
 
 This plugin automatically integrates Eleventy's features with Markdoc:
 
-
 ### Data Cascade
 
 All data from Eleventy's data cascade is available as variables in your Markdoc files:
@@ -137,48 +173,19 @@ Author: {% $author.name %}
 11ty version; {% $eleventy.version %}
 ```
 
-## HTML Support
+### Includes
 
-By default, the plugin preserves HTML in your Markdoc files:
+By default, includes with a `.mdoc` or `.markdoc` (or any extension specified in the `extensions` option) extension are available as [Markdoc partials](https://markdoc.dev/docs/partials).
 
-```markdoc
-# My Title
+You might want to modify this behavior by customizing the `usePartials` option.
 
-<div class="custom-component">
-  <p>This HTML will be preserved</p>
-</div>
-```
-
-You can disable this feature by setting `html: false` in the plugin options.
-
-### ⚠️ Warning about mixing HTML and Markdoc syntax
-
-There are some funky stuff going on when mixing HTML and Markdoc syntax.
-
-For example, this won't work:
-
-```html
-<strong>
-  *Markdoc*
-</strong>
-
-<div>
-  ![Image](https://placehold.co/600x400)
-</div>
-```
-
-While this will work (more or less) as expected:
+Use partials as follows:
 
 ```markdoc
-<strong>*Markdoc*</strong>
-
-<div>
-
-  ![Image](https://placehold.co/600x400)
-
-</div>
+{% partial file="my-partial.mdoc" variables={hello: "world"} /%}
 ```
 
+Variables are optional. By default, the partial has access to the data cascade of the current context.
 
 ### Filters
 
@@ -257,6 +264,48 @@ So a full example would be:
 ```
 
 This will be passed to the shortcode function as `fn("<p>Content</p>", { role }, firstName, lastName)`.
+
+## HTML Support
+
+By default, the plugin preserves HTML in your Markdoc files:
+
+```markdoc
+# My Title
+
+<div class="custom-component">
+  <p>This HTML will be preserved</p>
+</div>
+```
+
+You can disable this feature by setting `html: false` in the plugin options.
+
+### ⚠️ Warning about mixing HTML and Markdoc syntax
+
+There are some funky stuff going on when mixing HTML and Markdoc syntax.
+
+For example, this won't work:
+
+```html
+<strong>
+  *Markdoc*
+</strong>
+
+<div>
+  ![Image](https://placehold.co/600x400)
+</div>
+```
+
+While this will work (more or less) as expected:
+
+```markdoc
+<strong>*Markdoc*</strong>
+
+<div>
+
+  ![Image](https://placehold.co/600x400)
+
+</div>
+```
 
 ## Requirements
 
