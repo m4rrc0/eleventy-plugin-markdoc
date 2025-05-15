@@ -14,6 +14,9 @@ import readPartials from './_src/partials/readPartials.js';
 // TODO: validate pluginOptions (with assert or zod or ...?)
 export default async function(eleventyConfig, pluginOptions) {
     eleventyConfig.versionCheck(">=3.0.0-alpha.1");
+    // Add as a valid extension to process
+    eleventyConfig.addTemplateFormats("mdoc");
+    // Get input and includes directories
     const inputDir = eleventyConfig.dir?.input || ".";
     const includesDir = eleventyConfig.dir?.includes || "./_includes";
 
@@ -56,6 +59,12 @@ export default async function(eleventyConfig, pluginOptions) {
             : (pluginOptions?.usePartials ? [pluginOptions.usePartials] : defaults.usePartials)
     }
 
+    // Add partials' directories to watch targets
+    po.usePartials.forEach((partial) => {
+        eleventyConfig.addWatchTarget(partial.cwd, { resetConfig: true });
+    })
+
+    // Initialize Markdoc tokenizer
     let MarkdocTokenizer;
     if (po.html) {
         // Tokenize and process the input if we need to keep HTML
@@ -64,12 +73,9 @@ export default async function(eleventyConfig, pluginOptions) {
         MarkdocTokenizer = new Markdoc.Tokenizer({ allowComments: true });
     }
 
+    // Initialize HTML tag proxy name
     let htpn = po.includeTags?.htmlTagProxy
     htpn = (typeof htpn === "string" && htpn) || (htpn === true && "html-tag") || htpn;
-
-    // Add as a valid extension to process
-	// Alternatively, add this to the list of formats you pass to the `--formats` CLI argument
-	eleventyConfig.addTemplateFormats("mdoc");
 
     // Get universal stuff
     const filters = eleventyConfig.getFilters();
