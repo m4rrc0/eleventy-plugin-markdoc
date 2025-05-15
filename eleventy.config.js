@@ -41,7 +41,7 @@ export default async function(eleventyConfig, pluginOptions) {
                 // Path manipulation options
                 // pathPrefix: "", // Add a prefix to all paths in the results
                 // stripPrefix: "", // Remove a prefix from all paths in the results
-                debug: true
+                // debug: true
             }
         ],
         debug: false
